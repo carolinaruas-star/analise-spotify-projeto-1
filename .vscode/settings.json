@@ -1,0 +1,10 @@
+{
+    "vscode-bigquery.projects": [
+
+    ],
+    "vscode-bigquery.tables": [
+        
+    ],
+    "bigqueryRunner.defaultDataset.datasetId": "spotify",
+    "bigqueryRunner.projectId": "laboratoria-dados"
+}
