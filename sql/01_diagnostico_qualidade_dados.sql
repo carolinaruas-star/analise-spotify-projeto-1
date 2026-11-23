@@ -314,4 +314,170 @@ SELECT
   MAX(SAFE_CAST(in_shazam_charts AS INT64)) AS max_shazam_charts,
   ROUND(AVG(SAFE_CAST(in_shazam_charts AS INT64)), 2) AS avg_shazam_charts
 FROM `laboratoria-dados.spotify.track_in_competition`;
+
 -- %%
+-- 5. Inspecionar registros anômalos em in_spotify_playlists e streams (<= 0 ou muito baixos)
+SELECT *
+FROM `laboratoria-dados.spotify.track_in_spotify`
+WHERE SAFE_CAST(in_spotify_playlists AS INT64) IS NULL
+   OR SAFE_CAST(streams AS INT64) <= 10000
+   OR SAFE_CAST(in_spotify_playlists AS INT64) <= 0;
+
+-- %%
+-- 6. Validar extremos (MIN, MAX, AVG) após remoção do registro corrompido (track_id = 4061483)
+SELECT
+  COUNT(*) AS total_linhas_validas,
+  MIN(SAFE_CAST(in_spotify_playlists AS INT64)) AS min_playlists,
+  MAX(SAFE_CAST(in_spotify_playlists AS INT64)) AS max_playlists,
+  ROUND(AVG(SAFE_CAST(in_spotify_playlists AS INT64)), 2) AS avg_playlists,
+  MIN(SAFE_CAST(streams AS INT64)) AS min_streams,
+  MAX(SAFE_CAST(streams AS INT64)) AS max_streams,
+  ROUND(AVG(SAFE_CAST(streams AS INT64)), 2) AS avg_streams
+FROM `laboratoria-dados.spotify.track_in_spotify`
+WHERE SAFE_CAST(streams AS INT64) > 0;
+
+-- %%
+-- ============================================================================
+-- META 6: INTEGRAÇÃO RELACIONAL (VIEWS LIMPAS + LEFT JOIN)
+-- Projeto: laboratoria-dados | Dataset: spotify
+-- ============================================================================
+
+-- 1. Criar View limpa da tabela track_in_spotify (838 faixas únicas válidas)
+CREATE OR REPLACE VIEW `laboratoria-dados.spotify.vw_track_in_spotify_limpa` AS
+SELECT
+  SAFE_CAST(track_id AS INT64) AS track_id,
+  TRIM(track_name) AS track_name,
+  TRIM(artists_name) AS artists_name,
+  SAFE_CAST(artist_count AS INT64) AS artist_count,
+  CASE
+    WHEN main_music_genre IS NULL THEN 'Não informado'
+    WHEN main_music_genre IN ('Main genre', 'Grunge') THEN 'Rock'
+    WHEN main_music_genre = 'Heavy metal' THEN 'Hip-hop'
+    WHEN main_music_genre = 'Disco-pop' THEN 'Disco pop'
+    ELSE main_music_genre
+  END AS main_music_genre,
+  CASE
+    WHEN main_country IS NULL THEN 'Não informado'
+    WHEN main_country = 'MX' THEN 'Mexico'
+    WHEN main_country = 'PR' THEN 'Puerto Rico'
+    WHEN main_country = 'USA' THEN 'United States'
+    ELSE main_country
+  END AS main_country,
+  SAFE_CAST(released_year AS INT64) AS released_year,
+  SAFE_CAST(released_month AS INT64) AS released_month,
+  SAFE_CAST(released_day AS INT64) AS released_day,
+  SAFE_CAST(in_spotify_playlists AS INT64) AS in_spotify_playlists,
+  COALESCE(SAFE_CAST(in_spotify_charts AS INT64), 0) AS in_spotify_charts,
+  SAFE_CAST(streams AS INT64) AS streams
+FROM `laboratoria-dados.spotify.track_in_spotify`
+WHERE SAFE_CAST(streams AS INT64) > 0
+QUALIFY ROW_NUMBER() OVER (PARTITION BY SAFE_CAST(track_id AS INT64) ORDER BY track_id) = 1;
+
+-- %%
+-- 2. Criar View limpa da tabela track_in_competition (953 faixas únicas)
+CREATE OR REPLACE VIEW `laboratoria-dados.spotify.vw_track_in_competition_limpa` AS
+SELECT
+  SAFE_CAST(track_id AS INT64) AS track_id,
+  SAFE_CAST(in_apple_playlists AS INT64) AS in_apple_playlists,
+  SAFE_CAST(in_apple_charts AS INT64) AS in_apple_charts,
+  SAFE_CAST(in_deezer_playlists AS INT64) AS in_deezer_playlists,
+  SAFE_CAST(in_deezer_charts AS INT64) AS in_deezer_charts,
+  COALESCE(SAFE_CAST(in_shazam_charts AS INT64), 0) AS in_shazam_charts
+FROM `laboratoria-dados.spotify.track_in_competition`;
+
+-- %%
+-- 3. Criar View unificada (LEFT JOIN entre as duas views limpas)
+CREATE OR REPLACE VIEW `laboratoria-dados.spotify.vw_spotify_consolidada` AS
+SELECT
+  s.track_id,
+  s.track_name,
+  s.artists_name,
+  s.artist_count,
+  s.main_music_genre,
+  s.main_country,
+  s.released_year,
+  s.released_month,
+  s.released_day,
+  s.in_spotify_playlists,
+  s.in_spotify_charts,
+  s.streams,
+  c.in_apple_playlists,
+  c.in_apple_charts,
+  c.in_deezer_playlists,
+  c.in_deezer_charts,
+  c.in_shazam_charts
+FROM `laboratoria-dados.spotify.vw_track_in_spotify_limpa` AS s
+LEFT JOIN `laboratoria-dados.spotify.vw_track_in_competition_limpa` AS c
+  ON s.track_id = c.track_id;
+
+-- 4. Validar integridade da união (contagem de linhas, duplicidades e nulos pós-JOIN)
+SELECT
+  COUNT(*) AS total_linhas_consolidadas,
+  COUNT(DISTINCT track_id) AS track_ids_unicos,
+  COUNTIF(in_apple_playlists IS NULL) AS sem_correspondencia_competition,
+  COUNTIF(streams IS NULL OR streams <= 0) AS streams_invalidos
+FROM `laboratoria-dados.spotify.vw_spotify_consolidada`;
+
+-- %%
+-- ============================================================================
+-- META 9: MATRIZ DE CORRELAÇÃO DE PEARSON (CORR)
+-- Projeto: laboratoria-dados | Dataset: spotify
+-- ============================================================================
+
+SELECT
+  -- 1. Curadoria Editorial e Rankings no Spotify (Perguntas 1.1 e 1.2)
+  ROUND(CORR(in_spotify_playlists, streams), 4) AS corr_spotify_playlists_streams,
+  ROUND(CORR(in_spotify_charts, streams), 4) AS corr_spotify_charts_streams,
+
+  -- 2. Ecossistema Multiplataforma e Sinais Precoces (Pergunta 2.1)
+  ROUND(CORR(in_apple_playlists, streams), 4) AS corr_apple_playlists_streams,
+  ROUND(CORR(in_apple_charts, streams), 4) AS corr_apple_charts_streams,
+  ROUND(CORR(in_deezer_playlists, streams), 4) AS corr_deezer_playlists_streams,
+  ROUND(CORR(in_deezer_charts, streams), 4) AS corr_deezer_charts_streams,
+  ROUND(CORR(in_shazam_charts, streams), 4) AS corr_shazam_charts_streams,
+
+  -- 3. Correlação Cruzada entre Playlists das Plataformas
+  ROUND(CORR(in_spotify_playlists, in_apple_playlists), 4) AS corr_playlists_spotify_apple,
+  ROUND(CORR(in_spotify_playlists, in_deezer_playlists), 4) AS corr_playlists_spotify_deezer,
+
+  -- 4. Atributos da Faixa e Lançamento (Perguntas 3.1 e 3.2)
+  ROUND(CORR(artist_count, streams), 4) AS corr_artist_count_streams,
+  ROUND(CORR(released_year, streams), 4) AS corr_released_year_streams,
+  ROUND(CORR(released_month, streams), 4) AS corr_released_month_streams
+FROM `laboratoria-dados.spotify.vw_spotify_consolidada`;
+
+-- %%
+-- ============================================================================
+-- META 10: CONSULTAS COMPLEMENTARES PARA RESPOSTAS DE NEGÓCIO
+-- Projeto: laboratoria-dados | Dataset: spotify
+-- ============================================================================
+
+-- 1. Pergunta 1.2: Desempenho de faixas que entraram nos charts vs. fora dos charts (Spotify)
+SELECT
+  CASE
+    WHEN in_spotify_charts > 0 THEN 'Com presença em Charts (> 0)'
+    ELSE 'Fora dos Charts (= 0)'
+  END AS status_chart_spotify,
+  COUNT(*) AS qtd_faixas,
+  ROUND(AVG(streams), 0) AS media_streams,
+  APPROX_QUANTILES(streams, 2)[OFFSET(1)] AS mediana_streams,
+  ROUND(AVG(in_spotify_playlists), 1) AS media_playlists
+FROM `laboratoria-dados.spotify.vw_spotify_consolidada`
+GROUP BY status_chart_spotify
+ORDER BY media_streams DESC;
+
+-- %%
+-- 2. Pergunta 3.1: Desempenho por quantidade de artistas (Solo vs. Colaborações)
+SELECT
+  CASE
+    WHEN artist_count = 1 THEN '1 Artista (Solo)'
+    WHEN artist_count = 2 THEN '2 Artistas (Feat Duplo)'
+    ELSE '3 ou mais Artistas (Multi-feat)'
+  END AS formato_colaboracao,
+  COUNT(*) AS qtd_faixas,
+  ROUND(AVG(streams), 0) AS media_streams,
+  APPROX_QUANTILES(streams, 2)[OFFSET(1)] AS mediana_streams,
+  ROUND(AVG(in_spotify_playlists), 1) AS media_playlists
+FROM `laboratoria-dados.spotify.vw_spotify_consolidada`
+GROUP BY formato_colaboracao
+ORDER BY media_streams DESC;
