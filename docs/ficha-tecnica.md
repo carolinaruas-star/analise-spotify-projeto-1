@@ -660,4 +660,4 @@ ORDER BY media_streams DESC;
 - **Repositório Principal:** [README.md](../README.md)
 - **Plano de Execução e Metas:** [plano-execucao.md](./plano-execucao.md)
 - **Scripts SQL:** [`/sql`](../sql/)
-- **Dashboard Interativo (Data Studio): [https://datastudio.google.com/s/n5KY2J52el4]
+- **Dashboard Interativo (Data Studio):** [Acessar Dashboard](https://datastudio.google.com/s/n5KY2J52el4)
