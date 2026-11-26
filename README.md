@@ -78,7 +78,7 @@ Ao longo deste projeto, o foco está no desenvolvimento de competências analít
 ## 🔗 Links Rápidos
 - **Ficha Técnica (Consultas, Processo e Resultados):** [`docs/ficha-tecnica.md`](./docs/ficha-tecnica.md)
 - **Plano de Execução e Metas (Rota B):** [`docs/plano-execucao.md`](./docs/plano-execucao.md)
-- **Dashboard Interativo (Data Studio):** [Acessar Dashboard][https://datastudio.google.com/s/n5KY2J52el4]
+- **Dashboard Interativo (Data Studio):** [Acessar Dashboard](https://datastudio.google.com/s/n5KY2J52el4)
 - **Programa:** Ativa sua Carreira — Laboratória Brasil
 
 ---
