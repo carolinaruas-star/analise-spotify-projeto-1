@@ -13,7 +13,7 @@ Para viabilizar a entrega completa dos **dois projetos** previstos na trilha com
 | **Bloco 1: Negócio & Setup** | Definição do problema, formulação de hipóteses e ingestão no BigQuery | **Metas 0 e 1** | ✅ Concluído |
 | **Bloco 2: Saneamento SQL** | Qualidade de dados (nulos, duplicatas, outliers categóricos/numéricos) e `JOIN` | **Metas 2 a 6** | ✅ Concluído |
 | **Bloco 3: EDA & Insights** | Agregações, visualizações exploratórias, correlações e respostas ao negócio | **Metas 7 a 10** | ✅ Concluído |
-| **Bloco 4: BI & Entrega** | Construção do painel interativo no Looker Studio e apresentação final | **Metas 11 e 12** | 🔄 Em andamento |
+| **Bloco 4: BI & Entrega** | Construção do painel interativo no Looker Studio e apresentação final | **Metas 11 e 12** | ✅ Concluído |
 
 ---
 
@@ -38,7 +38,7 @@ Para viabilizar a entrega completa dos **dois projetos** previstos na trilha com
 
 ### 🔹 Etapa 4: Visualização Executiva e Entrega
 - [x] **Meta 11:** Construir o dashboard executivo interativo no Looker Studio conectado à `vw_spotify_consolidada` com KPIs compactados, filtros (`Gênero Musical`, `País`, `Ano de Lançamento`), grade visual (dispersão, países, tabela por gênero e sazonalidade mensal) e síntese de conclusões.
-- [ ] **Meta 12:** Consolidar a apresentação final e compartilhar o link do repositório / Ficha Técnica.
+- [x] **Meta 12:** Estruturar roteiro com storytelling de dados para o comitê executivo, preparar a entrega na plataforma (Ficha Técnica + link do dashboard/apresentação) e alinhar o pitch para a sessão de reflexão.
 
 ---
 
