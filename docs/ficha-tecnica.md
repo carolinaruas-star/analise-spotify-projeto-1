@@ -147,10 +147,10 @@ FROM `laboratoria-dados.spotify.track_in_spotify`;
 SELECT
   COUNT(*) AS total_linhas,
   COUNTIF(track_id IS NULL) AS nulos_track_id,
-  COUNTIF(in_apple_playlists IS NULL) AS nulos_in_apple_playlists,
-  COUNTIF(in_apple_charts IS NULL) AS nulos_in_apple_charts,
-  COUNTIF(in_deezer_playlists IS NULL) AS nulos_in_deezer_playlists,
-  COUNTIF(in_deezer_charts IS NULL) AS nulos_in_deezer_charts,
+  COUNTIF(in_apple_playlists IS NULL) AS nulos_apple_playlists,
+  COUNTIF(in_apple_charts IS NULL) AS nulos_apple_charts,
+  COUNTIF(in_deezer_playlists IS NULL) AS nulos_deezer_playlists,
+  COUNTIF(in_deezer_charts IS NULL) AS nulos_deezer_charts,
   COUNTIF(in_shazam_charts IS NULL) AS nulos_shazam_charts
 FROM `laboratoria-dados.spotify.track_in_competition`;
 
@@ -637,11 +637,17 @@ ORDER BY media_streams DESC;
 ---
 
 ## 📊 Dashboard Executivo no Looker Studio (Meta 11 — Concluída)
-- **Estrutura da Página Executiva:** Página única organizada em quatro faixas horizontais conectadas diretamente à view `laboratoria-dados.spotify.vw_spotify_consolidada` (838 faixas únicas), com identidade visual em verde e grafite e bloqueio de cruzamento de filtros para evitar efeitos indesejados nos gráficos comparativos[cite: 7]:
-  - **Cabeçalho e Filtros:** Título e contexto do projeto à esquerda (com ícone do Spotify) e três listas suspensas alinhadas (`Gênero Musical`, `País` e `Ano de Lançamento`)[cite: 7].
-  - **Cartões de KPI (Compactados):** `Faixas Analisadas` (**838**), `Média de Streams` (**536,6 mi**), `Média de Playlists Spotify` (**5,5 mil**) e `Total de Streams` (**449,7 bi**)[cite: 7].
-  - **Grade Visual Principal:** Gráfico de dispersão *Playlists Spotify × Streams ($r = 0{,}79$)* com linha de tendência linear[cite: 7], gráfico de colunas *Top 10 Países por Streams e Faixas*[cite: 7], tabela dinâmica *Desempenho por Gênero Musical* (com linha de *Total geral*)[cite: 7] e gráfico de combinação *Sazonalidade Mensal (Lançamento vs. Média de Streams)* ordenado de janeiro a dezembro[cite: 7].
-  - **Faixa de Conclusões:** Resumo executivo no rodapé destacando o teto de saturação editorial e o papel dos *charts*, sinais multiplataforma, faixas solo e janelas sazonais[cite: 7].
+- **Estrutura da Página Executiva:** Página única organizada em quatro faixas horizontais conectadas diretamente à view `laboratoria-dados.spotify.vw_spotify_consolidada` (838 faixas únicas), com identidade visual em verde e grafite e bloqueio de cruzamento de filtros para evitar efeitos indesejados nos gráficos comparativos:
+  - **Cabeçalho e Filtros:** Título e contexto do projeto à esquerda (com ícone do Spotify) e três listas suspensas alinhadas (`Gênero Musical`, `País` e `Ano de Lançamento`).
+  - **Cartões de KPI (Compactados):** `Faixas Analisadas` (**838**), `Média de Streams` (**536,6 mi**), `Média de Playlists Spotify` (**5,5 mil**) e `Total de Streams` (**449,7 bi**).
+  - **Grade Visual Principal:** Gráfico de dispersão *Playlists Spotify × Streams ($r = 0{,}79$)* com linha de tendência linear, gráfico de colunas *Top 10 Países por Streams e Faixas*, tabela dinâmica *Desempenho por Gênero Musical* (com linha de *Total geral*) e gráfico de combinação *Sazonalidade Mensal (Lançamentos vs. Média de Streams)* ordenado de janeiro a dezembro.
+  - **Faixa de Conclusões:** Resumo executivo no rodapé destacando o teto de saturação editorial e o papel dos *charts*, sinais multiplataforma, faixas solo e janelas sazonais.
+
+---
+
+## 🎤 Storytelling e Apresentação Executiva (Meta 12 — Concluída)
+- **Roteiro Narrativo (6 Blocos):** Estruturado para audiência executiva (Marina Costa, Rafael Tenório e Bianca Ferraz) seguindo o arco *Gancho $\rightarrow$ Contexto $\rightarrow$ Jornada $\rightarrow$ Descoberta $\rightarrow$ Recomendação $\rightarrow$ Riscos/Limitações*, apoiado exclusivamente nos gráficos do dashboard no Looker Studio e em métricas validadas na Ficha Técnica.
+- **Entrega e Sessão de Reflexão:** Preparação da submissão na plataforma (Ficha Técnica + link do dashboard/apresentação) e do pitch executivo para troca de feedback com o coach e colegas.
 
 ---
 
@@ -654,4 +660,4 @@ ORDER BY media_streams DESC;
 - **Repositório Principal:** [README.md](../README.md)
 - **Plano de Execução e Metas:** [plano-execucao.md](./plano-execucao.md)
 - **Scripts SQL:** [`/sql`](../sql/)
-- **Dashboard Interativo (Looker Studio):** *Publicação em andamento*
+- **Dashboard Interativo (Data Studio): [https://datastudio.google.com/s/n5KY2J52el4]
